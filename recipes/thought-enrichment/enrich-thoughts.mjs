@@ -163,7 +163,7 @@ async function callOpenRouter(userInput, config) {
 }
 
 async function callOpenAI(userInput, config) {
-  const res = await fetch("https://api.openai.com/v1/chat/completions", {
+  const res = await fetch(`${config.openaiBaseUrl}/chat/completions`, {
     method: "POST",
     headers: {
       Authorization: `Bearer ${config.openaiApiKey}`,
@@ -171,7 +171,8 @@ async function callOpenAI(userInput, config) {
     },
     body: JSON.stringify({
       model: config.openaiModel || "gpt-4o-mini",
-      max_tokens: 1024,
+      max_tokens: 2048,
+      ...(config.openaiDisableThinking ? { thinking: { type: "disabled" } } : {}),
       temperature: 0.1,
       messages: [
         { role: "system", content: CLASSIFICATION_PROMPT },
@@ -778,6 +779,8 @@ function buildConfig(args, env) {
     openRouterModel: args.model || env.OPENROUTER_CLASSIFIER_MODEL || "openai/gpt-4o-mini",
     // OpenAI direct
     openaiApiKey: env.OPENAI_API_KEY || "",
+    openaiDisableThinking: env.OPENAI_DISABLE_THINKING === "1",
+    openaiBaseUrl: (env.OPENAI_BASE_URL || "https://api.openai.com/v1").replace(/\/+$/, ""),
     openaiModel: args.model || env.OPENAI_CLASSIFIER_MODEL || "gpt-4o-mini",
     // Supabase
     supabaseUrl: env.SUPABASE_URL || "",
