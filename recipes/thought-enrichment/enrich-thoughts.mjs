@@ -481,7 +481,7 @@ async function classifyAndUpdate(thought, config) {
 
 async function fetchUnenriched(config, cursor, limit) {
   // Start with just id and content, then we'll check what columns exist
-  const url = `${config.supabaseUrl}/rest/v1/thoughts?select=id,content&order=id.asc&limit=${limit}`;
+  let url = `${config.supabaseUrl}/rest/v1/thoughts?select=id,content&order=id.asc&limit=${limit}`;
 
   if (cursor?.afterId != null) {
     url += `&id=gt.${cursor.afterId}`;
@@ -540,7 +540,7 @@ async function fetchUnenriched(config, cursor, limit) {
 
 async function fetchAnyThoughts(config, cursor, limit) {
   // Similar to fetchUnenriched but doesn't filter by enriched column
-  const url = `${config.supabaseUrl}/rest/v1/thoughts?select=id,content&order=id.asc&limit=${limit}`;
+  let url = `${config.supabaseUrl}/rest/v1/thoughts?select=id,content&order=id.asc&limit=${limit}`;
 
   if (cursor?.afterId != null) {
     url += `&id=gt.${cursor.afterId}`;
