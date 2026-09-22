@@ -243,6 +243,29 @@ GRANT SELECT, INSERT, UPDATE, DELETE ON TABLE public.crm_person_mentions TO serv
 GRANT EXECUTE ON FUNCTION public.crm_person_tiers(INTEGER, INTEGER, TEXT, INTEGER, INTERVAL)
   TO authenticated, service_role;
 
+-- ============================================================
+-- 6. ROW LEVEL SECURITY
+--    Supabase's default privileges on the public schema grant anon and
+--    authenticated full CRUD on new tables, and the security advisor
+--    flags any public table without RLS (rls_disabled_in_public).
+--    Enable RLS and allow only service_role through, matching the
+--    pattern used on public.thoughts. Add a narrower SELECT policy
+--    here if you later want authenticated end-users to read directly.
+-- ============================================================
+
+ALTER TABLE public.crm_persons         ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.crm_person_mentions ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS "Service role full access" ON public.crm_persons;
+CREATE POLICY "Service role full access" ON public.crm_persons
+  FOR ALL USING (auth.role() = 'service_role');
+
+DROP POLICY IF EXISTS "Service role full access" ON public.crm_person_mentions;
+CREATE POLICY "Service role full access" ON public.crm_person_mentions
+  FOR ALL USING (auth.role() = 'service_role');
+
+REVOKE ALL ON public.crm_persons, public.crm_person_mentions FROM anon, authenticated;
+
 COMMENT ON FUNCTION public.crm_person_tiers(INTEGER, INTEGER, TEXT, INTEGER, INTERVAL) IS
   'Paginated list of CRM persons with per-row relationship_tier and a computed effective_tier that promotes high-activity recent contacts to "connected".';
 

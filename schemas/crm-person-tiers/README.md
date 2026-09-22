@@ -68,6 +68,7 @@ SUPABASE (from your Open Brain setup)
 - Trigger that auto-updates `crm_persons.updated_at`
 - Function `public.crm_person_tiers(p_limit, p_offset, p_search, p_promote_min_mentions, p_promote_within)` (SECURITY INVOKER)
 - Grants: tables → `service_role`; RPC execute → `authenticated` + `service_role` (no `anon`, by design — see Security below)
+- Row Level Security enabled on both tables with a `service_role`-only policy, so the Supabase security advisor does not flag them as publicly accessible
 - `NOTIFY pgrst, 'reload schema'` so PostgREST picks up the new RPC
 
 </details>
