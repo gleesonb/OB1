@@ -37,6 +37,12 @@ const OPENROUTER_API_KEY = Deno.env.get("OPENROUTER_API_KEY") ?? "";
 const OPENAI_API_KEY = Deno.env.get("OPENAI_API_KEY") ?? "";
 const ANTHROPIC_API_KEY = Deno.env.get("ANTHROPIC_API_KEY") ?? "";
 
+// The extraction call below used the hardcoded constant, so the model could
+// only be changed by redeploying. Honour the same OPENROUTER_CLASSIFIER_MODEL
+// override the metadata helper already reads, keeping the constant as default.
+const OPENROUTER_MODEL =
+  Deno.env.get("OPENROUTER_CLASSIFIER_MODEL") ?? CLASSIFIER_MODEL_OPENROUTER;
+
 const WORKER_VERSION = "entity-extraction-worker-v1";
 const MAX_ATTEMPTS = 5;
 
@@ -303,7 +309,7 @@ async function extractEntities(content: string): Promise<ExtractionResult> {
         method: "POST",
         headers: { Authorization: `Bearer ${OPENROUTER_API_KEY}`, "Content-Type": "application/json" },
         body: JSON.stringify({
-          model: CLASSIFIER_MODEL_OPENROUTER,
+          model: OPENROUTER_MODEL,
           temperature: 0.1,
           // Force JSON output — otherwise proxied models sometimes wrap the
           // JSON in prose and blow up parseExtractionResult.
