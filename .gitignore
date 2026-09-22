@@ -32,3 +32,21 @@ backup/
 compiled-wiki/
 .hive/
 *.heapsnapshot
+
+# Local deploy notes (maintainer-only, like .planning/)
+LOCAL-DEPLOY-NOTES.md
+
+# Rotated env backups (never commit)
+.env.*.bak*
+.env.local.bak*
+
+# direnv hook
+.envrc
+
+# Runtime state and logs from local recipe runs
+recipes/thought-enrichment/logs/
+recipes/thought-enrichment/data/enrichment-state.json
+
+# Claude Code session-tracking churn
+.claude/.worker-tracking/
+.claude/scheduled_tasks.lock
