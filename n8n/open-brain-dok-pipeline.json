@@ -1,0 +1,100 @@
+{
+  "name": "OB DOK Pipeline — Categorize → Synthesize → Spovize",
+  "nodes": [
+    {
+      "parameters": {
+        "triggerRule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "0 2 * * *"
+            }
+          ],
+          "timezone": "UTC"
+        }
+      },
+      "id": "schedule-trigger",
+      "name": "Every Day 02:00 UTC",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [220, 300]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://zpeedfgyuusscsrirzsg.supabase.co/functions/v1/dok-pipeline?action=categorize",
+        "options": {
+          "timeout": 120000
+        },
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "x-brain-key",
+              "value": "103b14a836b25e08c9a83fe1faf7dd404f38ed06278c17e05b5a933d6bb9ef64"
+            }
+          ]
+        }
+      },
+      "id": "categorize",
+      "name": "Categorize (DOK1→DOK2)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [480, 300]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://zpeedfgyuusscsrirzsg.supabase.co/functions/v1/dok-pipeline?action=synthesize",
+        "options": {
+          "timeout": 120000
+        },
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "x-brain-key",
+              "value": "103b14a836b25e08c9a83fe1faf7dd404f38ed06278c17e05b5a933d6bb9ef64"
+            }
+          ]
+        }
+      },
+      "id": "synthesize",
+      "name": "Synthesize (DOK2→DOK3)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [740, 300]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://zpeedfgyuusscsrirzsg.supabase.co/functions/v1/dok-pipeline?action=spovize",
+        "options": {
+          "timeout": 120000
+        },
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "x-brain-key",
+              "value": "103b14a836b25e08c9a83fe1faf7dd404f38ed06278c17e05b5a933d6bb9ef64"
+            }
+          ]
+        }
+      },
+      "id": "spovize",
+      "name": "Spovize (DOK3→DOK4)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1000, 300]
+    }
+  ],
+  "connections": {
+    "Every Day 02:00 UTC": {
+      "main": [[{"node": "Categorize (DOK1→DOK2)", "type": "main", "index": 0}]]
+    },
+    "Categorize (DOK1→DOK2)": {
+      "main": [[{"node": "Synthesize (DOK2→DOK3)", "type": "main", "index": 0}]]
+    },
+    "Synthesize (DOK2→DOK3)": {
+      "main": [[{"node": "Spovize (DOK3→DOK4)", "type": "main", "index": 0}]]
+    }
+  }
+}
