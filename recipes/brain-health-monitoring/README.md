@@ -119,6 +119,11 @@ SELECT * FROM ops_type_distribution;
 
 After running the SQL, you should be able to query any `ops_*` view from the Supabase SQL Editor, your dashboard, or the REST API to get a real-time picture of your brain's health. These views are also available through PostgREST if you need to query them programmatically.
 
+## Security Notes
+
+- Every view is created `WITH (security_invoker = true)` and the install script revokes `anon`/`authenticated` access, so only `service_role` can read them. This keeps the Supabase security advisor from raising `0010_security_definer_view` on these views.
+- If you later want an authenticated dashboard user to read a view directly, grant `SELECT` on that one view and make sure RLS policies on the underlying tables allow that role. Do not grant to `anon`.
+
 ## Troubleshooting
 
 **"relation ops_ingestion_summary does not exist"**

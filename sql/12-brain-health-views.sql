@@ -39,11 +39,11 @@ SELECT
   coalesce(type, 'unknown') AS type,
   coalesce(source_type, 'unknown') AS source,
   importance,
-  sensitivity_tier,
+  (metadata->>'sensitivity_tier') AS sensitivity_tier,
   enriched,
   left(content, 180) AS preview
 FROM public.thoughts
-WHERE sensitivity_tier IS DISTINCT FROM 'restricted'
+WHERE (metadata->>'sensitivity_tier') IS DISTINCT FROM 'restricted'
 ORDER BY created_at DESC;
 
 -- ============================================================
@@ -61,7 +61,7 @@ SELECT
   left(content, 180) AS preview
 FROM public.thoughts
 WHERE enriched IS NOT TRUE
-  AND sensitivity_tier IS DISTINCT FROM 'restricted'
+  AND (metadata->>'sensitivity_tier') IS DISTINCT FROM 'restricted'
 ORDER BY created_at DESC;
 
 -- ============================================================
@@ -88,7 +88,7 @@ ORDER BY total DESC;
 
 CREATE OR REPLACE VIEW public.ops_sensitivity_distribution WITH (security_invoker = true) AS
 SELECT
-  coalesce(sensitivity_tier, 'standard') AS tier,
+  coalesce((metadata->>'sensitivity_tier'), 'standard') AS tier,
   count(*)::bigint AS total
 FROM public.thoughts
 GROUP BY 1
@@ -137,8 +137,8 @@ BEGIN
       SELECT
         thought_id,
         status,
-        attempt_count,
-        last_error,
+        coalesce((metadata->>'attempt_count')::int, 0) AS attempt_count,
+        error_message AS last_error,
         started_at,
         queued_at
       FROM public.entity_extraction_queue
